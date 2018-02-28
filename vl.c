@@ -4030,6 +4030,7 @@ int main(int argc, char **argv, char **envp)
                 if (!opts) {
                     exit(1);
                 }
+                printf(" here's spice \n");
                 display_remote++;
                 break;
             case QEMU_OPTION_writeconfig:

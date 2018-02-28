@@ -23,7 +23,7 @@
 #include "ui/console.h"
 #include "sysemu/sysemu.h"
 #include "trace.h"
-
+#include <spice-server/spice-qxl.h>
 #include "ui/spice-display.h"
 
 static int debug = 0;

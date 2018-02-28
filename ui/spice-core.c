@@ -659,9 +659,11 @@ void qemu_spice_init(void)
     spice_image_compression_t compression;
     spice_wan_compression_t wan_compr;
     bool seamless_migration;
-
+    printf("%s\n", __func__);
     qemu_thread_get_self(&me);
-
+    int hang = 0;
+    while (hang)
+        ;
     if (!opts) {
         return;
     }
@@ -720,6 +722,7 @@ void qemu_spice_init(void)
         addr_flags |= SPICE_ADDR_FLAG_IPV6_ONLY;
 #ifdef SPICE_ADDR_FLAG_UNIX_ONLY
     } else if (qemu_opt_get_bool(opts, "unix", 0)) {
+        printf("Setting the spice address flag\n");
         addr_flags |= SPICE_ADDR_FLAG_UNIX_ONLY;
 #endif
     }

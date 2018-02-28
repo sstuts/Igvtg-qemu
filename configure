@@ -292,6 +292,7 @@ vnc_sasl=""
 vnc_jpeg=""
 vnc_png=""
 xen=""
+xen410="no"
 xen_ctrl_version=""
 xen_pv_domain_build="no"
 xen_pci_passthrough=""
@@ -1000,6 +1001,8 @@ for opt do
   --disable-xen) xen="no"
   ;;
   --enable-xen) xen="yes"
+  ;;
+  --enable-xen-410)xen410="yes"
   ;;
   --disable-xen-pci-passthrough) xen_pci_passthrough="no"
   ;;
@@ -2071,19 +2074,20 @@ if test "$xen" != "no" ; then
   # overriding this setting with pkg-config output. If not, try pkg-config
   # to obtain all needed flags.
 
-  if ! echo $EXTRA_LDFLAGS | grep tools/libxc > /dev/null && \
-     $pkg_config --exists xencontrol ; then
+  if (! echo $EXTRA_LDFLAGS | grep tools/libxc > /dev/null && \
+	  $pkg_config --exists xencontrol) || $xen410=="yes" ; then
+    printf "## using pkgconfig" >> config.log
     xen_ctrl_version="$(printf '%d%02d%02d' \
       $($pkg_config --modversion xencontrol | sed 's/\./ /g') )"
     xen=yes
-    xen_pc="xencontrol xenstore xenguest xenforeignmemory xengnttab"
+    xen_pc="xenforeignmemory xengnttab xencontrol xenstore xenguest" 
     xen_pc="$xen_pc xenevtchn xendevicemodel"
     QEMU_CFLAGS="$QEMU_CFLAGS $($pkg_config --cflags $xen_pc)"
     libs_softmmu="$($pkg_config --libs $xen_pc) $libs_softmmu"
     LDFLAGS="$($pkg_config --libs $xen_pc) $LDFLAGS"
   else
-
-    xen_libs="-lxenstore -lxenctrl -lxenguest"
+    printf "## We should have it\n" >> config.log
+    xen_libs="-lxenstore -lxenctrl -lxenguest "
     xen_stable_libs="-lxenforeignmemory -lxengnttab -lxenevtchn"
 
     # First we test whether Xen headers and libraries are available.
@@ -2103,7 +2107,8 @@ EOF
         feature_not_found "xen" "Install xen devel"
       fi
       xen=no
-
+      printf "## setting the unstable to 4100\n" >> config.log
+      xen_ctrl_version=41000
     # Xen unstable
     elif
         cat > $TMPC <<EOF &&
@@ -2119,8 +2124,11 @@ int main(void) {
 }
 EOF
         compile_prog "" "$xen_libs -lxendevicemodel $xen_stable_libs"
+        printf "## setting it to 41000\n" >> config.log
+	xen_ctrl_version=41000
       then
-      xen_stable_libs="-lxendevicemodel $xen_stable_libs"
+	  xen_stable_libs="-lxendevicemodel $xen_stable_libs"
+	  printf "## Should be 41000 with $xen_stable_libs \n" >> config.log
       xen_ctrl_version=41000
       xen=yes
     elif

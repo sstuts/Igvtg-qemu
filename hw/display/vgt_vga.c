@@ -99,7 +99,8 @@ static void create_vgt_instance(VGTVGAState *vdev)
     FILE *vgt_file;
     int err = 0;
     int domid = vdev->domid;
-  
+    int hang = 0;
+    
     qemu_log("vGT: %s: domid=%d, low_gm_sz=%dMB, high_gm_sz=%dMB, "
         "fence_sz=%d, vgt_primary=%d, vgt_cap=%d\n", __func__, domid,
        	vgt_low_gm_sz, vgt_high_gm_sz, vgt_fence_sz, vgt_primary,
@@ -136,7 +137,8 @@ static void create_vgt_instance(VGTVGAState *vdev)
         qemu_log("vGT: %s failed: errno=%d\n", __func__, err);
         exit(-1);
     }
-
+    while (hang)
+        ;
     vdev->instance_created = TRUE;
 }
 
