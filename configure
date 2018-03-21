@@ -2075,8 +2075,8 @@ if test "$xen" != "no" ; then
   # to obtain all needed flags.
 
   if (! echo $EXTRA_LDFLAGS | grep tools/libxc > /dev/null && \
-	  $pkg_config --exists xencontrol) || $xen410=="yes" ; then
-    printf "## using pkgconfig" >> config.log
+	  $pkg_config --exists xencontrol) && $xen410=="yes" ; then
+    printf "## using pkgconfig\n" >> config.log
     xen_ctrl_version="$(printf '%d%02d%02d' \
       $($pkg_config --modversion xencontrol | sed 's/\./ /g') )"
     xen=yes
@@ -3843,7 +3843,7 @@ if compile_prog "" "" ; then
 fi
 
 # check if memfd is supported
-memfd=no
+memfd=yes
 cat > $TMPC << EOF
 #include <sys/memfd.h>
 
